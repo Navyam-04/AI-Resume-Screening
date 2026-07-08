@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+from typing import List
 from app.schemas.candidate import CandidateCreate, CandidateResponse
 
 router = APIRouter()
@@ -25,3 +26,17 @@ def create_candidate(candidate: CandidateCreate):
     next_id += 1
 
     return new_candidate
+
+
+@router.get("/candidates", response_model=List[CandidateResponse])
+def list_candidates():
+    return candidates_db
+
+
+@router.get("/candidates/{candidate_id}", response_model=CandidateResponse)
+def get_candidate(candidate_id: int):
+    for candidate in candidates_db:
+        if candidate.id == candidate_id:
+            return candidate
+
+    raise HTTPException(status_code=404, detail="Candidate not found")

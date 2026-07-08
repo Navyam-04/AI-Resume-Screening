@@ -38,3 +38,42 @@ def test_create_candidate_negative_experience():
     }
     response = client.post("/api/v1/candidates", json=payload)
     assert response.status_code == 422
+
+
+def test_list_candidates():
+    payload = {
+        "full_name": "List Test Candidate",
+        "email": "listtest@example.com",
+        "experience_years": 1,
+        "skills": ["SQL"]
+    }
+    client.post("/api/v1/candidates", json=payload)
+
+    response = client.get("/api/v1/candidates")
+
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+    assert len(response.json()) >= 1
+
+
+def test_get_candidate_by_id():
+    payload = {
+        "full_name": "Fetch Me",
+        "email": "fetchme@example.com",
+        "experience_years": 2,
+        "skills": ["Go"]
+    }
+    create_response = client.post("/api/v1/candidates", json=payload)
+    candidate_id = create_response.json()["id"]
+
+    response = client.get(f"/api/v1/candidates/{candidate_id}")
+
+    assert response.status_code == 200
+    assert response.json()["id"] == candidate_id
+    assert response.json()["full_name"] == "Fetch Me"
+
+
+def test_get_candidate_not_found():
+    response = client.get("/api/v1/candidates/999999")
+
+    assert response.status_code == 404
