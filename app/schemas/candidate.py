@@ -1,9 +1,9 @@
-from pydantic import BaseModel, EmailStr, Field
 from typing import List
+
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class CandidateCreate(BaseModel):
-    """What the CLIENT sends us. REQUEST model."""
     full_name: str = Field(..., min_length=2, max_length=100)
     email: EmailStr
     experience_years: int = Field(..., ge=0, le=50)
@@ -11,9 +11,8 @@ class CandidateCreate(BaseModel):
 
 
 class CandidateResponse(BaseModel):
-    """What WE send back. RESPONSE model.
-    Has 'id' — client never sends this, we generate it.
-    That's why request/response are two separate models."""
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     full_name: str
     email: EmailStr
